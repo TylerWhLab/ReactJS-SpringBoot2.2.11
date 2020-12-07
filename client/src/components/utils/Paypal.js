@@ -2,6 +2,7 @@ import React from 'react';
 import PaypalExpressBtn from 'react-paypal-express-checkout';
 
 export default class Paypal extends React.Component {
+    
     render() {
         const onSuccess = (payment) => {
             // Congratulation, it came here means everything's fine!
@@ -18,6 +19,7 @@ export default class Paypal extends React.Component {
         }
 
         const onError = (err) => {
+            
             // The main Paypal's script cannot be loaded or somethings block the loading of that script!
             console.log("[Paypal] Error!", err);
             // Because the Paypal's main script is loaded asynchronously from "https://www.paypalobjects.com/api/checkout.js"
@@ -25,7 +27,7 @@ export default class Paypal extends React.Component {
         }
 
         let env = 'sandbox'; // you can set here to 'production' for production
-        let currency = 'KRW'; // USD or you can set this value from your props or state
+        let currency = 'USD'; // USD or you can set this value from your props or state
         let total = this.props.total; // same as above, this is the total amount (based on currency) to be paid by using Paypal express checkout
         // Document on Paypal's currency code: https://developer.paypal.com/docs/classic/api/currency_codes/
 

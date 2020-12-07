@@ -2,6 +2,7 @@ import React from 'react'
 import "./UserCartBlock.css"
 import { URL } from '../../../Config';
 import { Button } from 'antd';
+import Money from '../../../utils/Money';
 
 
 function UserCartBlock(props) {
@@ -17,6 +18,7 @@ function UserCartBlock(props) {
 
     // 카트에 추가한 상품 목록
     const renderItems = () => (
+
         props.products && props.products.map((product, index) => (
             <tr key={index}>
                 <td style={{textAlign : 'center'}}>
@@ -29,10 +31,10 @@ function UserCartBlock(props) {
                     {product.quantity}
                 </td>
                 <td style={{ textAlign : 'right' }}>
-                    {product.price} 만원
+                    {Money(product.price)} 원
                 </td>
                 <td style={{ textAlign : 'center' }}>
-                    <Button danger onClick={() => props.removeItem(product._id)}>
+                    <Button danger onClick={() => props.removeFromCart(product.productId)}>
                         삭제 
                     </Button>
                 </td>

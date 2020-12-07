@@ -5,21 +5,20 @@ import { DiffOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 /* 
- * return path, filename;
+ * return path, orgFileName, realFileName;
  */
 
 function FileUp(props) {
 
-    const [FileName, setFileName] = useState("")
     const [Path, setPath] = useState("")
+    const [OrgFileName, setOrgFileName] = useState("")
 
-    // back-end로 file 전송 // back-end에서는 multer 모듈이 업로드 처리
+    // 업로드 처리
     const dropHandler = (files) => {
         
-        props.getOrgFileName(files[0].name)
-
         let formData = new FormData();
-        formData.append("file", files[0]) // 업로드할 파일
+        formData.append("userfile", files[0]) // 업로드할 파일
+        formData.append("subDir", 'notice')
 
         const config = {
             header: { 'content-type': 'multipart/form-data' }
@@ -28,9 +27,9 @@ function FileUp(props) {
         axios.post('/api/file/up', formData, config)
             .then(response => {
                 if (response.data.success) {
-                    setFileName(response.data.fileName)
-                    setPath(response.data.filePath)
-                    props.refreshFunction(response.data.filePath, response.data.fileName) /**부모 state에 전달 */
+                    setPath(response.data.path) // 업로드 경로
+                    setOrgFileName(response.data.orgFileName)
+                    props.refreshFunction(response.data.path, response.data.orgFileName, response.data.realFileName) /**부모 state에 전달 */
                 } else {
                     alert('파일 저장 실패')
                 }
@@ -40,14 +39,15 @@ function FileUp(props) {
 
     /**올린 파일 삭제 */
     const deleteHandler = () => {
-        setFileName("")
         setPath("")
-        props.refreshFunction("", "") /**부모 state에 전달 */
+        props.refreshFunction("", "", "") /**부모 state에 전달 */
     }
 
 
     return (
         <div style={{ justifyContent: 'space-between' }}>
+
+            {/* 파일 업로드 폼 */}
             <Dropzone onDrop={dropHandler}>
                 {({ getRootProps, getInputProps }) => (
                     <div
@@ -67,14 +67,16 @@ function FileUp(props) {
 
             <br />
 
-            { Path }
+            {/* 업로드 경로 출력 */}
+            {/* { Path } */}
+            { OrgFileName }
 
             <br />
             <br />
 
             {/* 삭제 버튼 */}
             { Path ? 
-            <Button danger onClick={() => deleteHandler()} style={{ float: 'left'}}>
+            <Button danger onClick={() => deleteHandler()} style={{ float: 'left' }}>
                 파일 삭제
             </Button>
             :

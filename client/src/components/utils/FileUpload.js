@@ -11,27 +11,21 @@ function FileUpload(props) {
     const [Images, setImages] = useState([]) // 이미지 여러개 업로드할 수 있게 하기위해 [] array
     /**async로 업로드된 파일경로/real filename 이 반환되고, 저장 시 파일명 insert(update)를 위해 state에 저장 */
 
-    // back-end로 file 전송 // back-end에서는 multer 모듈이 업로드 처리
     const dropHandler = (files) => {
 
         let formData = new FormData();
-        formData.append("file", files[0]) // 업로드할 파일
+        formData.append("userfile", files[0]) // 업로드할 파일
+        formData.append("subDir", 'image') // '../src/main/resources/static'
 
         const config = {
             header: { 'content-type': 'multipart/form-data' }
         }
 
-        axios.post('/api/product/image', formData, config)
+        axios.post('/api/file/up', formData, config)
             .then(response => {
                 if (response.data.success) {
-
-                    console.log(response.data)
-
-                    setImages([...Images, response.data.filePath])
-                    /**원래 있던 state에 append */
-
-                    props.refreshFunction([...Images, response.data.filePath]) /**부모 state에 전달 */
-
+                    setImages([...Images, response.data.realFileName]) /**원래 있던 state에 append */
+                    props.refreshFunction([...Images, response.data.realFileName]) /**부모 state에 전달 */
                 } else {
                     alert('파일을 저장하는데 실패했습니다.')
                 }

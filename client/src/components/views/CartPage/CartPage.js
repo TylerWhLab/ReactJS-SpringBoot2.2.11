@@ -4,6 +4,7 @@ import { getCartItems, removeCartItem, onSuccessBuy } from '../../../_actions/us
 import UserCartBlock from './Sections/UserCartBlock';
 import { Empty, Result } from 'antd';
 import Paypal from '../../utils/Paypal';
+import Money from '../../utils/Money';
 
 function CartPage(props) {
     const dispatch = useDispatch();
@@ -19,7 +20,7 @@ function CartPage(props) {
         if (props.user.userData && props.user.userData.cart) {
             if (props.user.userData.cart.length > 0) {
                 props.user.userData.cart.forEach(item => {
-                    cartItems.push(item.id)
+                    cartItems.push(item.productId)
                 })
                 dispatch(getCartItems(cartItems, props.user.userData.cart))
                     .then(response => { calculateTotal(response.payload) })
@@ -47,7 +48,8 @@ function CartPage(props) {
         dispatch(removeCartItem(productId))
             .then(response => {
 
-                if (response.payload.productInfo.length <= 0) {
+                // if (response.payload.productInfo.length <= 0) {
+                if (response.payload.cart.length <= 0) {
                     setShowTotal(false)
                 }
 
@@ -76,14 +78,14 @@ function CartPage(props) {
 
             {/* 카트에 담긴 상품 내역 */}
             <div>
-                <UserCartBlock products={props.user.cartDetail} removeItem={removeFromCart} />
+                <UserCartBlock products={props.user.cartDetail} removeFromCart={removeFromCart} />
             </div>
 
 
             {/* 전체금액 */}
             {ShowTotal ?
                 <div style={{ marginTop: '3rem' }}>
-                    <h2>전체 금액: {Total} 만원</h2>
+                    <h2>전체 금액: {Money(Total)} 원</h2>
                 </div>
                 : ShowSuccess ?
                     <Result
@@ -99,12 +101,22 @@ function CartPage(props) {
             }
 
             {/* 결제버튼 */}
-            {ShowTotal &&
+            {ShowTotal ?
+                <div style={{ visibility: 'visible' }}>
                 <Paypal
                     total={Total}
                     onSuccess={transactionSuccess}
                 />
+                </div>
+                :
+                <div style={{ visibility: 'hidden' }}>
+                <Paypal
+                    total={Total}
+                    onSuccess={transactionSuccess}
+                />
+                </div>
             }
+
 
         </div>
     )

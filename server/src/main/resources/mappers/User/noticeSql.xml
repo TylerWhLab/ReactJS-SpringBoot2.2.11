@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="KimJeongKyun.toyShop.Router.NoticeDao">
+
+    <select id="selectUser" parameterType="Map" resultType="CamelListMap">
+        /* selectUser */
+        SELECT *
+          FROM TB_USER
+         WHERE USER_ID = #{userId}
+    </select>
+
+    <insert id="insertFileInfo" parameterType="Map" useGeneratedKeys="true" keyColumn="FILE_ID" keyProperty="fileSeq"> <!-- INSERT된 KEY 반환  -->
+        /* insertFileInfo */
+        INSERT INTO TB_FILE (
+            FILE_ID,
+            ORG_FILE_NAME,
+            REAL_FILE_NAME,
+            PATH
+        ) VALUES (
+            FILE_SEQ.NEXTVAL,
+            #{orgFileName},
+            #{realFileName},
+            #{path}
+        )
+    </insert>
+
+    <insert id="insertNotice" parameterType="Map">
+        /* insertNotice */
+        INSERT INTO TB_NOTICE (
+            NOTICE_ID,
+            USER_ID,
+            TITLE,
+            CONTENT,
+            FILE_ID
+        ) VALUES (
+            NOTICE_SEQ.NEXTVAL,
+            #{userId},
+            #{title},
+            #{content},
+            #{fileSeq}
+        )
+    </insert>
+
+
+
+    <sql id="NOTICE_CONDITION">
+           A.TITLE LIKE '%' || (CASE WHEN #{searchText} IS NULL THEN A.TITLE ELSE #{searchText} END) || '%'
+        OR A.CONTENT LIKE '%' || (CASE WHEN #{searchText} IS NULL THEN A.CONTENT ELSE TO_CLOB(#{searchText}) END) || '%'
+    </sql>
+
+    <select id="selectNotices" parameterType="Map" resultType="CamelListMap">
+        /* selectNotices */
+        SELECT T.* FROM ( SELECT TT.*, ROWNUM RNUM FROM (
+
+            SELECT A.NOTICE_ID
+                 , A.USER_ID
+                 , A.TITLE
+                 , TO_CHAR(A.CONTENT) CONTENT
+                 , A.VIEWS
+                 , A.REG_DATE
+                 , A.MOD_DATE
+                 , (SELECT NAME
+                      FROM TB_USER
+                     WHERE A.USER_ID = USER_ID
+                   ) NAME
+                 , B.ORG_FILE_NAME
+                 , B.REAL_FILE_NAME
+                 , B.PATH
+              FROM TB_NOTICE A
+              LEFT OUTER JOIN TB_FILE B
+                ON A.FILE_ID = B.FILE_ID
+             WHERE <include refid="NOTICE_CONDITION" />
+             ORDER BY ${sortCol} ${sortKeyword}
+
+        ) TT ) T WHERE ${(pageNo-1)*cntPerPage+1} &lt;= T.RNUM AND T.RNUM &lt;= ${pageNo*cntPerPage}
+        <!--
+            >  : &gt;
+            <  : &lt;
+            >= : &gt;=
+            <= : &lt;=
+        -->
+    </select>
+
+    <select id="selectNoticeTotal" parameterType="Map" resultType="int">
+        /* selectNoticeTotal */
+        SELECT COUNT(*)
+          FROM TB_NOTICE A
+         WHERE <include refid="NOTICE_CONDITION" />
+    </select>
+
+
+</mapper>

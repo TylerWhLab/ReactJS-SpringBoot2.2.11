@@ -34,16 +34,24 @@ function RightMenu(props) {
     } else {
         return (
         <Menu mode={props.mode}>
-            <Menu.Item key="history">
-                <a href="/history">결제목록</a>
+
+            <Menu.Item key="name">
+                <div style={{}}>
+                    {/* <a href="/my">{user.userData && user.userData.name} 님 안녕하세요.</a> */}
+                    {user.userData && user.userData.name} 님 안녕하세요.
+                </div>
             </Menu.Item>
+
+            {/* <Menu.Item key="history">
+                <a href="/history">결제목록</a>
+            </Menu.Item> */}
 
             <Menu.Item key="upload">
                 <a href="/product/upload">상품등록</a>
             </Menu.Item>
 
             <Menu.Item key="cart" style={{ paddingBottom: 3 }}>
-                <Badge count={user.userData && user.userData.cart.length}>
+                <Badge count={user.userData && user.userData.cart && user.userData.cart.length}>
                     {/* Badge : 개수 표시 */}
                     <a href="/user/cart" className="head-example" style={{ marginRight: -22, color: '#667777' }} >
                         <ShoppingCartOutlined style={{ fontSize: 30, marginBottom: 3 }} />

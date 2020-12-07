@@ -28,6 +28,7 @@ function App() {
             <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
                 <Switch>
                     <Route exact path="/" component={Auth(LandingPage, null)} />
+                    {/* <Route exact path="/" component={LandingPage} /> */}
                     <Route exact path="/login" component={Auth(LoginPage, false)} />
                     <Route exact path="/register" component={Auth(RegisterPage, false)} />
                     <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
@@ -38,9 +39,9 @@ function App() {
                     <Route exact path="/history" component={Auth(HistoryPage, true)} />
 
                     {/* <Route exact path="/download" component={Auth(DownloadPage, true)} /> */}
-                    <Route exact path="/notice" component={Auth(NoticePage, null)} />
-                    <Route exact path="/noticeWrite" component={Auth(NoticeWrite, null)} />
-                    <Route exact path="/noticeDetail" component={Auth(NoticeDetail, null)} />
+                    <Route exact path="/notice" component={Auth(NoticePage, true)} />
+                    <Route exact path="/noticeWrite" component={Auth(NoticeWrite, true)} />
+                    <Route exact path="/noticeDetail" component={Auth(NoticeDetail, true)} />
                                         
 
                     {/* 인증/인가를 위해 hoc로 감싸줌, Auth:./hoc/auth 

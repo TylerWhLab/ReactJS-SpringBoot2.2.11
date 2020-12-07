@@ -8,7 +8,7 @@ function Footer() {
             flexDirection: 'column', alignItems: 'center',
             justifyContent: 'center', fontSize:'1rem'
         }}>
-           <p> 김정균 샵  <SmileOutlined /></p>
+           <p> Created by 김정균 <SmileOutlined /></p>
            
         </div>
     )

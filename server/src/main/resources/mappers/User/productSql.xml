@@ -2,12 +2,86 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="KimJeongKyun.toyShop.Router.ProductDao">
 
-    <select id="selectProduct" parameterType="Map" resultType="CamelListMap">
-        /* selectProduct */
-        SELECT *
-          FROM TB_PRODUCT
+    <select id="selectProducts" parameterType="Map" resultType="CamelListMap">
+        /* selectProducts */
+        SELECT T.* FROM ( SELECT TT.*, ROWNUM RNUM FROM (
+
+            SELECT A.*
+                 , (SELECT RTRIM(
+                       (SELECT LISTAGG(PATH || REAL_FILE_NAME || ',') WITHIN GROUP(ORDER BY REAL_FILE_NAME)
+                          FROM TB_FILE
+                         WHERE PRODUCT_ID = A.PRODUCT_ID
+                       )
+                       , ',') FROM DUAL
+                   ) IMAGES
+              FROM TB_PRODUCT A
+             WHERE TO_NUMBER(${startPrice}) &lt;= A.PRICE
+               AND A.PRICE &lt;= TO_NUMBER(${endPrice})
+               AND (
+                       A.TITLE LIKE '%' || (CASE WHEN #{searchTerm} IS NULL THEN A.TITLE ELSE #{searchTerm} END) || '%'
+                    OR A.DESCRIPTION LIKE '%' || (CASE WHEN #{searchTerm} IS NULL THEN A.DESCRIPTION ELSE #{searchTerm} END) || '%'
+                   )
+             ORDER BY A.${sortBy} ${order}
+
+        ) TT ) T WHERE ${skip} &lt;= T.RNUM AND T.RNUM &lt; ${skip + limit}
+        <!--
+            >  : &gt;
+            <  : &lt;
+            >= : &gt;=
+            <= : &lt;=
+        -->
+    </select>
+
+    <select id="selectCartProducts" parameterType="List" resultType="CamelListMap">
+        /* selectCartProducts */
+        SELECT A.*
+             , (SELECT RTRIM(
+                    (SELECT LISTAGG(PATH || REAL_FILE_NAME || ',') WITHIN GROUP(ORDER BY REAL_FILE_NAME)
+                       FROM TB_FILE
+                      WHERE PRODUCT_ID = A.PRODUCT_ID
+                    )
+                    , ',') FROM DUAL
+             ) IMAGES
+          FROM TB_PRODUCT A
+         WHERE A.PRODUCT_ID IN
+                <foreach collection="productIds" item="productId" open="(" separator="," close=")">
+                    #{productId}
+                </foreach>
+
     </select>
 
 
+    <insert id="insertProduct" parameterType="Map" useGeneratedKeys="true" keyColumn="PRODUCT_ID" keyProperty="productSeq"> <!-- INSERT된 KEY 반환  -->
+        INSERT INTO TB_PRODUCT (
+            PRODUCT_ID,
+            TITLE,
+            DESCRIPTION,
+            PRICE,
+            SOLD
+        ) VALUES (
+            PRODUCT_SEQ.NEXTVAL,
+            #{title},
+            #{description},
+            #{price},
+            #{sold}
+        )
+    </insert>
+
+    <insert id="insertFileInfo" parameterType="Map">
+        /* insertFileInfo */
+        INSERT INTO TB_FILE (
+            FILE_ID,
+            PRODUCT_ID,
+            PATH,
+            ORG_FILE_NAME,
+            REAL_FILE_NAME
+        ) VALUES (
+            FILE_SEQ.NEXTVAL,
+            #{productSeq},
+            #{path},
+            #{orgFileName},
+            #{realFileName}
+        )
+    </insert>
 
 </mapper>

@@ -11,9 +11,9 @@ function DetailProductPage(props) {
     const [Product, setProduct] = useState({})
 
     useEffect(() => {
-        axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
+        axios.get(`/api/product/products_by_id?id=${productId}`)
             .then(response => {
-                setProduct(response.data[0]) // 1건 이므로 index 0
+                setProduct(response.data[0]); // 1건 이므로 index 0
             })
             .catch(err => alert(err))
     }, [])
@@ -42,7 +42,7 @@ function DetailProductPage(props) {
                 {/* 상품 설명 */}
                 <Col lg={12} sm={24}>
                     {/* ProductInfo */}
-                    <ProductInfo detail={Product} />
+                    <ProductInfo detail={Product} user={props.user} history={props.history} />
                 </Col>
 
             </Row>

@@ -29,6 +29,8 @@ export default function (SpecificComponent, option, adminRoute = null) { // Spec
                 } else {
                     // 로그인 O
                     if(adminRoute && !response.payload.isAdmin){
+                        console.log('auth.js admin check');
+                        console.log(response.payload.isAdmin);
                         props.history.push('/')
                     } else {
                         if(option === false){ // false : 로그인한 유저는 출입불가

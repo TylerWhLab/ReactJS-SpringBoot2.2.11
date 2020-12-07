@@ -9,7 +9,14 @@ function ProductInfo(props) {
 
     // 카트에 담기 redux
     const onAddToCartClick = () => {
-        dispatch(addToCart(props.detail._id))
+
+        if (props.user.userData && !props.user.userData.isAuth) {
+            alert('로그인이 필요한 기능입니다. 로그인 페이지로 이동합니다.');
+            props.history.push('/login');
+            return false;
+        }
+
+        dispatch(addToCart(props.detail.productId))
     }
 
     return (

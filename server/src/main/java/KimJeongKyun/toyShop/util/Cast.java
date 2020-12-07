@@ -1,5 +1,10 @@
 package KimJeongKyun.toyShop.util;
 
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import java.util.*;
+
 public class Cast {
 
     public static int INT( Object obj ) {
@@ -13,5 +18,7 @@ public class Cast {
     public static Boolean BOOL( Object obj ) {
         return Boolean.valueOf( String.valueOf( obj ) );
     }
+
+
 
 }

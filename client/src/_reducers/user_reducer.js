@@ -7,16 +7,15 @@ import {
     GET_CART_ITEMS,
     REMOVE_CART_ITEM,
     ON_SUCCESS_BUY,
-    GET_NOTICE,
+    SELECT_NOTICES,
 } from '../_actions/types';
 
 
-export default function (previousState = {}, action) { // previousState = 빈 값
+export default function (previousState = {}, action) { // previousState = (default)빈 값
     switch (action.type) {
         case LOGIN_USER:
-            return { ...previousState, login_reducerNextState: action.payload } // ... 스프레드 오퍼레이터 : 인자로 받은 previousState를 그대로 가져옴 // login_reducerNextState 로 store 내 데이터가 더떤 동작으로 저장되었는지 구분?
+            return { ...previousState, login_reducerNextState: action.payload } // ... 스프레드 오퍼레이터 : 인자로 받은 previousState를 그대로 가져옴 // login_reducerNextState 로 store 내 데이터가 어떤 동작으로 저장되었는지 구분
             // store로 이동(이전 state, 변경된 state)
-            // 이전 state는 request완료되어 필요없어서 빈값으로 만드나?
 
         case REGISTER_USER:
             return { ...previousState, register_reducerNextState: action.payload }
@@ -40,8 +39,9 @@ export default function (previousState = {}, action) { // previousState = 빈 �
             return {
                 ...previousState, cartDetail: action.payload.productInfo,
                 userData: {
-                    ...previousState.userData,
+                    ...previousState.userData, // 기존 userData 에
                     cart: action.payload.cart
+                    // cart: action.payload.productInfo // userData.cart = action.payload.productInfo 추가
                 }
             }
         case ON_SUCCESS_BUY:
@@ -52,7 +52,7 @@ export default function (previousState = {}, action) { // previousState = 빈 �
                 }
             }
 
-        case GET_NOTICE:
+        case SELECT_NOTICES:
             return { ...previousState, noticeReducer: action.payload }
 
         default:

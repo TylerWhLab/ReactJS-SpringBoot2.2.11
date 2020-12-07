@@ -8,7 +8,7 @@ import {
     GET_CART_ITEMS,
     REMOVE_CART_ITEM,
     ON_SUCCESS_BUY,
-    GET_NOTICE,
+    SELECT_NOTICES,
 } from './types';
 import { USER_SERVER } from '../components/Config.js'; // '/api/users'
 
@@ -69,6 +69,7 @@ export function addToCart(id) {
     let body = {
         productId: id
     }
+
     const request = axios.post(`${USER_SERVER}/addToCart`, body)
         .then(response => response.data);
 
@@ -81,18 +82,21 @@ export function addToCart(id) {
 
 export function getCartItems(cartItems, userCart) {
 
-    const request = axios.get(`/api/product/products_by_id?id=${cartItems}&type=array`)
+    const request = axios.get(`/api/product/products_by_id?id=${cartItems}`)
         .then(response => {
+
             // CartItem들에 해당하는 정보들을  
             // Product Collection에서 가져온후에 
             // Quantity 정보를 넣어 준다.
             userCart.forEach(cartItem => {
                 response.data.forEach((productDetail, index) => {
-                    if (cartItem.id === productDetail._id) {
+                    if (cartItem.productId === productDetail.productId) {
                         response.data[index].quantity = cartItem.quantity
                     }
                 })
             })
+            /* quantity 넣어주는 작업은 auth에서 해결했으므로 필요없는지 체크 */
+
             return response.data;
         });
 
@@ -106,18 +110,7 @@ export function getCartItems(cartItems, userCart) {
 export function removeCartItem(productId) {
 
     const request = axios.get(`/api/users/removeFromCart?id=${productId}`)
-        .then(response => {
-            //productInfo ,  cart 정보를 조합해서   CartDetail을 만든다. 
-            response.data.cart.forEach(item => {
-                response.data.productInfo.forEach((product, index) => {
-                    if (item.id === product._id) {
-                        response.data.productInfo[index].quantity = item.quantity // Product Table + User Cart quantity
-                    }
-
-                })
-            })
-            return response.data;
-        });
+        .then(response => response.data);
 
     return {
         type: REMOVE_CART_ITEM,
@@ -139,13 +132,13 @@ export function onSuccessBuy(data) {
 }
 
 
-export function getNotice(reqBody) {
+export function selectNoticesAction(reqBody) {
 
     const responseData = axios.post(`/api/notice`, reqBody)
         .then(response => response.data);
 
     return {
-        type: GET_NOTICE,
+        type: SELECT_NOTICES,
         payload: responseData
     }
 }

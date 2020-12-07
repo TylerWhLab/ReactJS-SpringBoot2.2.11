@@ -54,8 +54,7 @@ public class CamelListMap extends ListOrderedMap {
 
     @Override
     public Object put(Object key, Object value) {
-        return super.put(toCamelCase((String)key), value.toString());
-
+        return super.put(toCamelCase((String)key), value);
     }
 
 }

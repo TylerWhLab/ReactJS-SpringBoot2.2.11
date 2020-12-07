@@ -11,7 +11,9 @@ function RadioBox(props) { // Datas.js
 
     const renderRadioBox = () => (
         props.list && props.list.map(value => (
-            <Radio key={value._id} value={value._id}> {value.name} </Radio>
+            <div key={value._id}>
+                <Radio key={value._id} value={value._id}> {value.name} </Radio>
+            </div>
         ))
     )
 

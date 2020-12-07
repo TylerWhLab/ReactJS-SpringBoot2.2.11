@@ -23,6 +23,7 @@ function UploadProductPage(props) {
     const [Price, setPrice] = useState(0)
     const [Continent, setContinent] = useState(1)
     const [Images, setImages] = useState([])
+    const [Sold, setSold] = useState(0)
 
     const titleChangeHandler = (event) => {
         setTitle(event.currentTarget.value)
@@ -36,9 +37,13 @@ function UploadProductPage(props) {
         setPrice(event.currentTarget.value)
     }
 
-    const continentChangeHandler = (event) => {
-        setContinent(event.currentTarget.value)
+    const soldChangeHandler = (event) => {
+        setSold(event.currentTarget.value)
     }
+
+    // const continentChangeHandler = (event) => {
+    //     setContinent(event.currentTarget.value)
+    // }
 
     const updateImages = (newImages) => {
         setImages(newImages)
@@ -47,22 +52,20 @@ function UploadProductPage(props) {
     const submitHandler = (event) => {
         event.preventDefault();
 
-        if (!Title || !Description || !Price || !Continent || Images.length === 0) {
+        if (!Title || !Description || !Price || !Continent || Images.length === 0 || !Sold) {
             return alert(" 모든 값을 넣어주셔야 합니다.")
         }
 
 
-        //서버에 채운 값들을 request로 보낸다.
-
+        /* 상품 등록 */
         const body = {
-            writer: props.user.userData._id, //로그인 된 사람의 ID // auth.js에서 현재 사용자 정보 넣어두었다. 
+            userId: props.user.userData.userId, //로그인 된 사람의 ID // auth.js에서 현재 사용자 정보 넣어두었다. 
             title: Title,
             description: Description,
             price: Price,
             images: Images,
-            continents: Continent
+            sold: Sold
         }
-
         Axios.post('/api/product', body)
             .then(response => {
                 if (response.data.success) {
@@ -99,17 +102,21 @@ function UploadProductPage(props) {
                 <TextArea onChange={descriptionChangeHandler} value={Description} />
                 <br />
                 <br />
-                <label>가격($)</label>
+                <label>가격(원)</label>
                 <Input type="number" onChange={priceChangeHandler} value={Price} />
                 <br />
                 <br />
-                <select onChange={continentChangeHandler} value={Continent}>
-                    {Continents.map(item => ( /* map : 리스트에서 하나씩 가져옴 */
+                <label>재고수량</label>
+                <Input type="number" onChange={soldChangeHandler} value={Sold} />
+                <br />
+                <br />
+                {/* <select onChange={continentChangeHandler} value={Continent}>
+                    {Continents.map(item => ( // map : 리스트에서 하나씩 가져옴 
                         <option key={item.key} value={item.key}> {item.value}</option>
                     ))}
                 </select>
                 <br />
-                <br />
+                <br /> */}
                 <Button type="submit" onClick={submitHandler}>
                     확인
                 </Button>

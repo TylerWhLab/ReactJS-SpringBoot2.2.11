@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Button } from 'antd';
 import { saveAs } from 'file-saver';
 
+/* 연습 화면 */ 
 
 function DownloadPage() {
 

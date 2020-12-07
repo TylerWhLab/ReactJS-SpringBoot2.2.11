@@ -9,14 +9,17 @@ function NoticeWrite(props) {
 
     const [Title, setTitle] = useState("")
     const [Content, setContent] = useState("")
-    const [NoticeNo, setNoticeNo] = useState(0)
-    const [Views, setViews] = useState(1)
-    const [Writer, setWriter] = useState([])
-    const [FileName, setFileName] = useState("")
+    // const [NoticeNo, setNoticeNo] = useState(0)
+    // const [Views, setViews] = useState(1)
+    // const [Writer, setWriter] = useState([])
+    const [Path, setPath] = useState("")
     const [OrgFileName, setOrgFileName] = useState("")
+    const [RealFileName, setRealFileName] = useState("")
 
-    const uploadFile = (path, fileName) => {
-        setFileName(fileName)
+    const fileUploadResult = (path, orgFileName, realFileName) => {
+        setPath(path)
+        setOrgFileName(orgFileName)
+        setRealFileName(realFileName)
     }
 
     const titleChangeHandler = (event) => {
@@ -38,13 +41,14 @@ function NoticeWrite(props) {
         }
 
         const reqBody = {
-            writer: props.user.userData._id, //로그인 된 사람의 ID // auth.js에서 현재 사용자 정보 넣어두었다. 
+            userId: props.user.userData.userId, //로그인 된 사람의 ID // auth.js에서 현재 사용자 정보 넣어두었다. 
             title: Title,
             content: Content,
-            fileName: FileName,
+            path: Path,
             orgFileName: OrgFileName,
+            realFileName: RealFileName
         }
-
+        
         axios.post('/api/notice/insert', reqBody)
             .then(response => {
                 if (response.data.success) {
@@ -56,12 +60,6 @@ function NoticeWrite(props) {
             })
     }
 
-
-    const getOrgFileName = (orgFileName) => {
-        setOrgFileName(orgFileName)
-    }
-
-
     return (
         <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -72,15 +70,15 @@ function NoticeWrite(props) {
                 <br />
                 <br />
                 <label>제목</label>
-                <Input onChange={titleChangeHandler} value={Title} />
+                    <Input onChange={titleChangeHandler} value={Title} />
                 <br />
                 <br />
                 <label>내용</label>
-                <TextArea onChange={contentChangeHandler} value={Content} style={{ height: '250px' }} />
+                    <TextArea onChange={contentChangeHandler} value={Content} style={{ height: '250px' }} />
                 <br />
                 <br />
                 <label>첨부파일</label>
-                <FileUp refreshFunction={uploadFile} getOrgFileName={getOrgFileName} />
+                    <FileUp refreshFunction={fileUploadResult} />
                 <br />
                 <br />
                 <Button type="submit" onClick={submitHandler} style={{ float: 'right' }}>

@@ -9,13 +9,20 @@ import { saveAs } from 'file-saver';
 function FileDown(props) {
 
     const orgFileName = props.fileName.orgFileName // 보여주기용 파일명
-    const fileName = props.fileName.fileName // request 전용 파일명
+    const realFileName = props.fileName.realFileName // request 전용 파일명
+    const path = props.fileName.path
 
     // 다운로드 버튼 클릭 이벤트
     const onDownload = () => {
 
+        if ( ! realFileName ) {
+            alert('업로드한 파일이 없습니다.');
+            return false;
+        }
+
         let requestBody = {
-            filename: fileName
+            realFileName: realFileName,
+            path: path
         }
 
         let reqConf = {
@@ -25,7 +32,7 @@ function FileDown(props) {
 
         axios.post('/api/file/down', requestBody, reqConf)
             .then(response => {
-                if (response.data && !response.data.dSuccess) {
+                if (response.data && !response.data.success) {
                     const blob = new Blob( [response.data], {type: "application/octet-stream"} );
                     saveAs(blob, orgFileName);
                 } else {
@@ -39,7 +46,7 @@ function FileDown(props) {
         <div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
                 <div style={{margin: '5px 10px 0px 0px'}}>
-                    첨부파일 : 
+                    첨부파일 : [{orgFileName}]
                 </div>
                 <Button type="primary" onClick={onDownload}>
                     다운로드 <DownloadOutlined />

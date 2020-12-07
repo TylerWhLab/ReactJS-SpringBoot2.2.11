@@ -9,16 +9,16 @@ function NoticeTable(props) {
         props.notices && props.notices.map((notice, index) => (
             <tr key={index} style={{cursor: 'pointer'}} onClick={() => props.moveNoticeDetail(notice)} >
                 <td style={{textAlign : 'center'}}>
-                    {notice.noticeNo}
+                    {notice.noticeId}
                 </td>
                 <td>
                     {notice.title}
                 </td>
                 <td style={{ textAlign : 'center' }}>
-                    {notice.writer.name}
+                    {notice.name}
                 </td>
                 <td style={{ textAlign : 'center' }}>
-                    {String(notice.createdAt).slice(0, 10)}
+                    {String(notice.modDate).slice(0, 10)}
                 </td>
                 {/* <td style={{ textAlign : 'right' }}>
                     {notice.views}

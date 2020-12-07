@@ -8,17 +8,18 @@ import ImageSlider from '../../utils/ImageSlider';
 import Checkbox from './Sections/CheckBox';
 import Radiobox from './Sections/RadioBox';
 import SearchFeature from './Sections/SearchFeature';
-import { continents, price } from './Sections/Datas'; // 체크박스, 라디오박스 데이터
+import { checkBoxData, price } from './Sections/Datas'; // 체크박스, 라디오박스 데이터
 import { withRouter } from 'react-router-dom';
+import Money from '../../utils/Money';
 
 function LandingPage(props) {
 
     const [Products, setProducts] = useState([])
-    const [Skip, setSkip] = useState(0) /** 더보기 기능, 시작 인덱스 */
+    const [Skip, setSkip] = useState(1) /** 더보기 기능, 시작 인덱스 */
     const [Limit, setLimit] = useState(8) /** 더보기 기능, 한 번 select 하는 count */
     const [PostSize, setPostSize] = useState(0)
     const [Filters, setFilters] = useState({
-        continents: [],
+        checkBoxData: {},
         price: []
     })
     const [SearchTerm, setSearchTerm] = useState("")
@@ -39,13 +40,14 @@ function LandingPage(props) {
     const getProducts = (body) => {
         axios.post('/api/product/products', body)
             .then(response => {
-                if (response.data.success) {
+               if (response.data.success) {
                     if (body.loadMore) { // append
                         setProducts([...Products, ...response.data.productInfo])
                     } else {
                         setProducts(response.data.productInfo)
                     }
                     setPostSize(response.data.postSize) /**더보기 버튼 출력 여부 */
+
                 } else {
                     alert(" 상품들을 가져오는데 실패 했습니다.")
                 }
@@ -72,7 +74,7 @@ function LandingPage(props) {
     }
 
 
-    // (본문) 상품들을 카드형식으로 출력
+    // (본문) 상품들을 카드형식으로 출력 & 상세보기 링크
     const renderCards = Products.map((product, index) => {
 
         return <Col lg={6} md={8} xs={24} key={index}>
@@ -80,13 +82,13 @@ function LandingPage(props) {
 
             {/* 사진 */}
             <Card
-                cover={<a href={`/product/${product._id}`} ><ImageSlider images={product.images} /></a>}
+                cover={<a href={`/product/${product.productId}`} ><ImageSlider images={product.images} /></a>}
             >
 
                 {/* 상품 설명(이름,가격) */}
                 <Meta
-                    title={product.title}
-                    description={`${product.price}만원`}
+                    title={<div style={{textAlign: "center"}}>{product.title}</div>}
+                    description={<div style={{textAlign: "right"}}>{`${Money(product.price)} 원`}</div>}
                 />
 
             </Card>
@@ -94,24 +96,24 @@ function LandingPage(props) {
     })
 
 
-    // 체크박스(다건), 라디오박스(1건)로 SELECT
+    // 체크박스, 라디오박스 조건으로 SELECT
     const showFilteredResults = (filters) => {
 
         let body = {
-            skip: 0,
+            skip: 1,
             limit: Limit,
             filters: filters
         }
 
         getProducts(body)
-        setSkip(0)
+        setSkip(1)
 
     }
 
 
     // 라디오박스 가격대 가져오기
     const handlePrice = (value) => {
-        const data = price;
+        const data = price; // Datas.js 내 price
         let array = [];
 
         for (let key in data) { // Datas.js
@@ -125,19 +127,16 @@ function LandingPage(props) {
 
     // 자식 컴포넌트로부터 state 받기
     const handleFilters = (filters, category) => { // filters 체크된 것들
-
         const newFilters = { ...Filters }
-
         newFilters[category] = filters
 
-        console.log('filters', filters)
-
         if (category === "price") {
-            let priceValues = handlePrice(filters)
+            let priceValues = handlePrice(filters) // 라디오박스 가격대 가져오기
             newFilters[category] = priceValues
         }
+
         showFilteredResults(newFilters) // 체크박스(다건), 라디오박스(1건)로 SELECT
-        setFilters(newFilters) // 체크박스, 라디오박스 함께 조건으로 들어가 SELECT
+        setFilters(newFilters)
     }
 
 
@@ -145,13 +144,13 @@ function LandingPage(props) {
     const updateSearchTerm = (newSearchTerm) => {
 
         let body = {
-            skip: 0,
+            skip: 1,
             limit: Limit,
             filters: Filters, // 체크,라디오박스 선택값에 더해서 SELECT
             searchTerm: newSearchTerm
         }
 
-        setSkip(0)
+        setSkip(1)
         setSearchTerm(newSearchTerm)
 
         getProducts(body)
@@ -170,11 +169,11 @@ function LandingPage(props) {
 
                 {/* 검색조건 데이터 : LandingPage/Sections/Datas.js */}
 
-                {/* CheckBox(국가) -> LandingPage/Sections/CheckBox.js */}
+                {/* CheckBox(정렬방식) -> LandingPage/Sections/CheckBox.js */}
                 <Col lg={12} xs={24}>
                     {/* large 일때 12 */}
-                    <Checkbox list={continents} handleFilters={filters => handleFilters(filters, "continents")} />
-                    {/* list={continents} : data,  handleFilters : 자식 컴포넌트 state 받기 */}
+                    <Checkbox list={checkBoxData} handleFilters={filters => handleFilters(filters, "checkBoxData")} />
+                    {/* list={checkBoxData} : data,  handleFilters : 자식 컴포넌트 state 받기 */}
                 </Col>
 
                 {/* RadioBox(가격) */}

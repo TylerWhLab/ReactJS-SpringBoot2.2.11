@@ -8,10 +8,11 @@ const { TextArea } = Input;
 
 function NoticeDetail(props) {
 
-    const notice = props.location.state.notice
+    const notice = props.location.state.notice;
 
     useEffect(() => {
-
+        window.scrollTo(0, 0); // 상세보기 접근 시 스크롤 상단으로 이동
+        
         // 조회수 ++
         // Axios.post('/api/notice/views', { notice: notice })
         // .then(response => {
@@ -22,10 +23,6 @@ function NoticeDetail(props) {
 
     }, [])
     
-
-    // const titleChangeHandler = () => {
-
-    // }
 
     const contentChangeHandler = () => {
         // pass
@@ -39,7 +36,7 @@ function NoticeDetail(props) {
             </div>
 
             <div style={{float: 'right'}}>
-                작성일자 : {String(notice.createdAt).slice(0,10)} {String(notice.createdAt).split('T')[1].slice(0,8)}
+                작성일자 : {String(notice.modDate).slice(0,10)} {String(notice.modDate).indexOf('T') !== -1 ? String(notice.modDate).split('T')[1].slice(0,8) : String(notice.modDate).split(' ')[1].slice(0,8)}
             </div>
 
             <br />

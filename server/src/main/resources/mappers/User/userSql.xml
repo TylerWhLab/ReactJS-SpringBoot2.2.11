@@ -29,11 +29,15 @@
         /* selectUserSession */
         SELECT A.USER_ID
              , A.EMAIL
-             , A.LAST_NAME
+             , A.NAME
              , A.ROLE
              , A.FILE_ID
              , B.S_AUTH
-             , CASE WHEN (B.SESSION_EXP &lt; SYSDATE) THEN 'Y' ELSE 'N' END AS TIME_OVER
+             , (CASE WHEN (B.SESSION_EXP &lt; SYSDATE)
+                     THEN 'Y'
+                     ELSE 'N'
+                     END
+               ) TIME_OVER
                 <!--
                     >  : &gt;
                     <  : &lt;
@@ -55,16 +59,16 @@
         <!--           AND SESSION_EXP &lt; SYSDATE-->
     </delete>
 
-    <select id="selectCart" parameterType="Map" resultType="CamelListMap"> <!-- 다중 레코드 반환하는 방법 ? java에서 List<Map>으로 받기 -->
+    <select id="selectCart" parameterType="Map" resultType="CamelListMap">
         /* selectCart */
         SELECT CART_ID
              , PRODUCT_ID
              , QUANTITY
           FROM TB_CART
-         WHERE USER_ID = #{userId}
-           AND PRODUCT_ID = (CASE WHEN #{productId} IS NULL
+         WHERE USER_ID = ${userId}
+           AND PRODUCT_ID = (CASE WHEN ${productId} = -1
                                   THEN PRODUCT_ID
-                                  ELSE #{productId}
+                                  ELSE ${productId}
                                   END)
     </select>
 
@@ -74,12 +78,14 @@
             USER_ID
           , EMAIL
           , PASSWORD
-          , LAST_NAME
+<!--          , LAST_NAME-->
+          , NAME
         ) VALUES (
             USER_SEQ.NEXTVAL
           , #{email}
           , #{hashPw}
-          , #{lastName}
+<!--          , #{lastName}-->
+          , #{name}
         )
     </insert>
 

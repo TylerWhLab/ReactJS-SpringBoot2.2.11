@@ -27,10 +27,12 @@ public class UserController {
         Map<String, Object> sess = new HashMap<String, Object>();
         Map<String, Object> user = new HashMap<String, Object>();
 
-        String sessionValue = Cast.STR(session.getAttribute(session_name)).toLowerCase().trim();
+        String sessionValue = Cast.STR(session.getAttribute(session_name));
+
+        /* isAuth : 로그인 유무 */
 
         if ( sessionValue.equals("null") || sessionValue.equals("") ) {
-            System.err.println("세션 없음");
+            System.err.println("세션 없음 : [" + sessionValue + "]");
             res.put("isAuth", false);
             return res;
         }
@@ -42,7 +44,7 @@ public class UserController {
             res.put("isAuth", false);
         }
 
-        String timeOver = Cast.STR(user.get("timeOver")); // KEY 값은 BigDecimal 이라 변환 후 intValue로 또 변환
+        String timeOver = Cast.STR(user.get("timeOver"));
         if ( timeOver.equals("Y") ) {
             // 세션 삭제
             int d = userDao.deleteSession( user );
@@ -69,20 +71,25 @@ public class UserController {
         HttpSession session = request.getSession();
         user = this.auth(session);
 
-        if ( Cast.BOOL(user.get("isAuth")) == false ) {
-            System.err.println("인증 실패");
+        if ( ! Cast.BOOL(user.get("isAuth")) ) {
             res.put("success", false);
             res.put("isAuth", false);
             res.put("msg", "No Session");
-            return new ResponseEntity(res, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(res, HttpStatus.OK);
+        }
+
+        if ( !user.containsKey("productId") ) {
+            user.put("productId", -1); // user.put("productId", null); => object.toString() 불가능 에러 발생
         }
 
         carts = userDao.selectCart( user );
         user.put("cart", carts);
         user.put("isAuth", true);
-        user.put("isAdmin", user.get("role").equals(0) ? false : true); /*role => number equals?*/
+        user.put("isAdmin", Cast.INT(user.get("role")) == 0 ? false : true);
 
         user.remove(session_name);
+        user.remove("productId");
+
         return new ResponseEntity(user, HttpStatus.OK);
     }
 
@@ -91,7 +98,7 @@ public class UserController {
     public ResponseEntity<Object> register(@RequestBody Map req) {
         Map<String, Object> res = new HashMap<String, Object>();
 
-        String pw = req.get("password").toString();
+        String pw = Cast.STR(req.get("password"));
         String hashPw = "";
         hashPw = Md5.createMD5(pw + userPwSalt);
 
@@ -119,8 +126,8 @@ public class UserController {
         String salt = "LOGIN_SESSION_CREATE";
         Date date = new Date();
 
-        String reqEmail = req.get("email").toString();
-        String reqPassword = Md5.createMD5(req.get("password").toString() + userPwSalt);
+        String reqEmail = Cast.STR(req.get("email"));
+        String reqPassword = Md5.createMD5(Cast.STR(req.get("password")) + userPwSalt);
 
         req.put("email", reqEmail);
         req.put("hashPw", reqPassword);
@@ -132,13 +139,13 @@ public class UserController {
             return new ResponseEntity(res, HttpStatus.BAD_REQUEST);
         }
 
-        String userEmail = (String)user.get("email");
-        String userPw = (String)user.get("password");
+        String userEmail = Cast.STR(user.get("email"));
+        String userPw = Cast.STR(user.get("password"));
 
         if ( userEmail.equals(reqEmail) ) {
             if ( userPw.equals(reqPassword) ) {
                 /* 로그인 성공 시 세션 생성 */
-                String hashStr = Md5.createMD5(reqEmail + salt + reqPassword + date.toString());
+                String hashStr = Md5.createMD5(reqEmail + salt + reqPassword + Cast.STR(date));
                 session.setAttribute(session_name, hashStr);
 
                 sess.put("userId", user.get("userId"));
@@ -152,6 +159,7 @@ public class UserController {
                     return new ResponseEntity(res, HttpStatus.BAD_REQUEST);
                 }
 
+                System.err.println("로그인 성공 !");
                 res.put("loginSuccess", true);
                 return new ResponseEntity(res, HttpStatus.OK);
             } else {
@@ -185,6 +193,7 @@ public class UserController {
         }
 
         session.invalidate();
+
         int d = userDao.deleteSession(user);
         if ( d == 0 ) {
             res.put("success", false);
@@ -227,7 +236,7 @@ public class UserController {
 
         /* 카트에 이미 담겼는지 체크 */
         if ( carts.size() > 0 ) {
-            Map<String, Object> cart = carts.get(0);
+            Map<String, Object> cart = carts.get(0); // 왜 굳이 리스트에 담아서 0번째 꺼내쓸까 ? - auth 에서 리스트로 꺼내야 해서 작성한 쿼리 재탕하기 때문
             quantity = Cast.INT(cart.get("quantity")) + 1;
             addItem.put("quantity", quantity);
             addItem.put("cartId", Cast.INT(cart.get("cartId")));
@@ -248,7 +257,10 @@ public class UserController {
             }
         }
 
-        return new ResponseEntity(addItem, HttpStatus.OK);
+        carts.clear();
+        carts = userDao.selectCartProduct(user);
+
+        return new ResponseEntity(carts, HttpStatus.OK);
     }
 
 
@@ -257,7 +269,7 @@ public class UserController {
         Map<String, Object> res = new HashMap<String, Object>();
         Map<String, Object> user = new HashMap<String, Object>();
         Map<String, Object> delItem = new HashMap<String, Object>();
-        List<Map<String, Object>> cartProduct = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> cart = new ArrayList<Map<String, Object>>();
         HttpSession session = request.getSession();
 
         user = this.auth(session);
@@ -279,8 +291,11 @@ public class UserController {
             return new ResponseEntity(res, HttpStatus.BAD_REQUEST);
         }
 
-        cartProduct = userDao.selectCartProduct(user);
-        res.put("cartProduct", cartProduct);
+        cart = userDao.selectCartProduct(user);
+        System.err.println("카트에서 제거");
+        System.err.println(cart);
+//        res.put("productInfo", cart);
+        res.put("cart", cart);
         res.put("success", true);
         return new ResponseEntity(res, HttpStatus.OK);
     }
