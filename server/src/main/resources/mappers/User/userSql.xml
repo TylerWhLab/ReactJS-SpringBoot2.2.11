@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="KimJeongKyun.toyShop.Router.UserDao">
 
-    <select id="selectUserForLogin" parameterType="Map" resultType="Map">
+    <select id="selectUserForLogin" parameterType="Map" resultType="CamelListMap">
         /* selectUserForLogin */
         SELECT *
           FROM TB_USER
          WHERE EMAIL = #{email}
-           AND PASSWORD = #{password}
+           AND PASSWORD = #{hashPw}
     </select>
 
     <insert id="insertSession" parameterType="Map">
@@ -19,20 +19,21 @@
           , SESSION_EXP
         ) VALUES (
             SESSION_SEQ.NEXTVAL
-          , #{user_id}
-          , #{s_auth}
-          , SYSDATE + #{session_exp}/(24*60) -- session_exp 분 후 세션 파기
+          , #{userId}
+          , #{sAuth}
+          , SYSDATE + #{sessionExp}/(24*60) -- session_exp 분 후 세션 파기
         )
     </insert>
 
-    <select id="selectUserSession" parameterType="Map" resultType="Map">
+    <select id="selectUserSession" parameterType="Map" resultType="CamelListMap">
         /* selectUserSession */
         SELECT A.USER_ID
              , A.EMAIL
-             , A.LASTNAME
+             , A.LAST_NAME
              , A.ROLE
              , A.FILE_ID
-             , CASE WHEN (B.SESSION_EXP &lt; SYSDATE) THEN 1 ELSE 0 END AS TIME_OVER
+             , B.S_AUTH
+             , CASE WHEN (B.SESSION_EXP &lt; SYSDATE) THEN 'Y' ELSE 'N' END AS TIME_OVER
                 <!--
                     >  : &gt;
                     <  : &lt;
@@ -42,26 +43,90 @@
           FROM TB_USER A
           LEFT OUTER JOIN TB_SESSION B
             ON A.USER_ID = B.USER_ID
-         WHERE B.S_AUTH = #{s_auth}
+         WHERE B.S_AUTH = #{sAuth}
     </select>
 
-    <select id="selectCart" parameterType="Map" resultType="Map"> <!-- 다중 레코드 반환하는 방법 ? -->
+    <delete id="deleteSession" parameterType="Map">
+        /* deleteSession */
+        DELETE
+        FROM TB_SESSION
+        WHERE S_AUTH = #{sAuth}
+        OR USER_ID = #{userId}
+        <!--           AND SESSION_EXP &lt; SYSDATE-->
+    </delete>
+
+    <select id="selectCart" parameterType="Map" resultType="CamelListMap"> <!-- 다중 레코드 반환하는 방법 ? java에서 List<Map>으로 받기 -->
         /* selectCart */
         SELECT CART_ID
              , PRODUCT_ID
              , QUANTITY
           FROM TB_CART
-         WHERE USER_ID = #{user_id}
+         WHERE USER_ID = #{userId}
+           AND PRODUCT_ID = (CASE WHEN #{productId} IS NULL
+                                  THEN PRODUCT_ID
+                                  ELSE #{productId}
+                                  END)
+    </select>
+
+    <insert id="insertUser" parameterType="Map">
+        /* insertUser */
+        INSERT INTO TB_USER (
+            USER_ID
+          , EMAIL
+          , PASSWORD
+          , LAST_NAME
+        ) VALUES (
+            USER_SEQ.NEXTVAL
+          , #{email}
+          , #{hashPw}
+          , #{lastName}
+        )
+    </insert>
+
+
+    <insert id="insertCart" parameterType="Map">
+        /* insertCart */
+        INSERT INTO TB_CART (
+            CART_ID,
+            USER_ID,
+            PRODUCT_ID,
+            QUANTITY
+        ) VALUES (
+            CART_SEQ.NEXTVAL,
+            #{userId},
+            #{productId},
+            #{quantity}
+        )
+
+    </insert>
+
+    <update id="updateCart" parameterType="Map">
+        /* updateCart */
+        UPDATE TB_CART
+           SET QUANTITY = #{quantity}
+             , LAST_ADD_DATE = SYSDATE
+         WHERE CART_ID = #{cartId}
+    </update>
+
+    <delete id="deleteCart" parameterType="Map">
+        /* deleteCart */
+        DELETE
+          FROM TB_CART
+         WHERE USER_ID = #{userId}
+           AND PRODUCT_ID = #{productId}
+    </delete>
+
+
+    <select id="selectCartProduct" parameterType="Map" resultType="CamelListMap">
+        /* selectCartProduct */
+        SELECT A.*
+             , B.*
+          FROM TB_CART A
+         INNER JOIN TB_PRODUCT B
+            ON A.PRODUCT_ID = B.PRODUCT_ID
+           AND A.USER_ID = #{userId}
     </select>
 
 
-    <delete id="deleteSession" parameterType="Map">
-        /* deleteSession */
-        DELETE
-          FROM TB_SESSION
-         WHERE S_AUTH = #{s_auth}
-            OR USER_ID = #{user_id}
-<!--           AND SESSION_EXP &lt; SYSDATE-->
-    </delete>
 
 </mapper>

@@ -33,15 +33,21 @@ public class FileController {
             // String rootPath = FileSystemView.getFileSystemView().getHomeDirectory().toString(); // C:\Users\rbswk\Desktop\
             // String filePath = "/" + file.getOriginalFilename();
             // basedir(== /): /file_upload # C:/file_upload/work/Tomcat/localhost/ROOT
+            System.err.println("FileSystemView.getFileSystemView().toString()");
+            System.err.println(FileSystemView.getFileSystemView().toString());
 
-            String filePath = "C:/file_upload/work/spring/" + file.getOriginalFilename(); // 디렉터리는 생성되어 있어야 함
+            String orgFileName = file.getOriginalFilename();
+            String filePath = "C:/file_upload/work/spring/" + orgFileName; // 디렉터리는 생성되어 있어야 함
             File dest = new File(filePath); // 한글은 HTML entity encoding, 영어는 정상 업로드
             file.transferTo(dest); // 파일 업로드 작업 수행
 
             res.put("success", true);
             res.put("filePath", filePath);
+            res.put("filename", orgFileName);
         } else {
             res.put("success", false);
+            res.put("msg", "파일이 없습니다.");
+            return new ResponseEntity(res, HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(res, HttpStatus.OK);

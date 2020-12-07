@@ -1,0 +1,13 @@
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "HTTP://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/> <!-- Convert query results to a chamel case -->
+    </settings>
+
+    <typeAliases>
+<!--        <typeAlias alias="HashMap" type="java.util.HashMap" />-->
+<!--        <typeAlias alias="List" type="java.util.List" />-->
+        <typeAlias alias="CamelListMap" type="KimJeongKyun.toyShop.util.CamelListMap" /> <!-- resultType Alias -->
+    </typeAliases>
+</configuration>
