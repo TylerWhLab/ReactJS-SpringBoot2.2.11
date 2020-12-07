@@ -1,0 +1,42 @@
+# ORACLE
+spring:
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:oracle:thin:@127.0.0.1:1521/xe
+    username: username
+    password: pw
+
+    #    url: jdbc:log4jdbc:mariadb://localhost:3306/test?characterEncoding=UTF-8&serverTimezone=UTC
+    #    url: jdbc:log4jdbc:mysql://localhost:3306/test?characterEncoding=UTF-8&serverTimezone=UTC
+#  messages:
+#    basename: messages # many languages file name, resources/messages.properties
+
+
+mybatis:
+  type-aliases-package: KimJeongKyun.toyShop.Router #model location
+  mapper-locations: classpath:mappers/**/*.xml #xml location
+  config-location: classpath:mybatis-config.xml
+
+
+server:
+  port: 9999
+  tomcat:
+    basedir: /file_upload # C:\file_upload\work\Tomcat\localhost\ROOT
+
+
+logging:
+  level:
+    org.springframework: DEBUG
+    jdbc.sqlonly: DEBUG
+    # Kind Of Log
+    #1. jdbc.sqlonly: SQL log
+    #2. jdbc.sqltiming: SQL time(milliseconds) log
+    #3. jdbc.audit: JDBC log
+    #4. jdbc.resultset: ResultSet + JDBC log
+    #5. jdbc.resultsettable: table information log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # /actuator : server status check
