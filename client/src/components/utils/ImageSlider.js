@@ -1,7 +1,7 @@
 import React from 'react'
 import { Carousel } from 'antd'; // 여러 이미지를 슬라이드하면서 보여주는 효과
 import { URL } from '../Config';
-import axios from 'axios';
+// import axios from 'axios';
 
 function ImageSlider(props) { // props 로 product.images 이미지 데이터 받음
 
@@ -22,7 +22,8 @@ function ImageSlider(props) { // props 로 product.images 이미지 데이터 �
             {/* autoplay : 자동 슬라이드 */}
                 {props.images.map((image, index) => (
                     <div key={index}>
-                        <img style={{ width: '100%', maxHeight: '150px' }}
+                        {/* <img style={{ width: '100%', maxHeight: '150px' }} */}
+                        <img style={{ margin: 'auto', maxHeight: '150px' }}
                             src={`${URL}/${image}`} 
                             alt=""/>
                     </div>

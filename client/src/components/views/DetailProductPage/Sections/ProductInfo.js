@@ -2,6 +2,7 @@ import React from 'react'
 import { Button, Descriptions } from 'antd';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../../../_actions/user_actions';
+import Money from '../../../utils/Money';
 
 
 function ProductInfo(props) {
@@ -22,7 +23,7 @@ function ProductInfo(props) {
     return (
         <div>
             <Descriptions title="상품 정보">
-                <Descriptions.Item label="가격">{props.detail.price}</Descriptions.Item>
+                <Descriptions.Item label="가격">{Money(props.detail.price)}</Descriptions.Item>
                 <Descriptions.Item label="재고">{props.detail.sold}</Descriptions.Item>
                 <Descriptions.Item label="조회수">{props.detail.views}</Descriptions.Item>
                 <Descriptions.Item label="설명">{props.detail.description}</Descriptions.Item>

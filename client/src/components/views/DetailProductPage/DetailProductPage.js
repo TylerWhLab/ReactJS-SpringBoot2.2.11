@@ -4,6 +4,7 @@ import ProductImage from './Sections/ProductImage';
 import ProductInfo from './Sections/ProductInfo';
 import { Row, Col } from 'antd';
 
+
 function DetailProductPage(props) {
 
     const productId = props.match.params.productId
